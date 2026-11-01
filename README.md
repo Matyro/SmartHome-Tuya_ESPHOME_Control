@@ -56,3 +56,12 @@ g++ -std=c++17 -Wall -Wextra -o test_protocol tests/test_protocol.cpp && ./test_
 ## YAML example
 
 See `esp8266_sample.yaml` for a complete local configuration. Optional entities can be removed or customized independently.
+
+## Based on
+
+- [AC-hack](https://github.com/adaasch/AC-hack) — protocol investigation and reverse-engineering notes.
+- [esphome-kaeltebringer](https://github.com/KG3RK3N/esphome-kaeltebringer) — related ESPHome component.
+
+## AI disclosure
+
+AI tools were used to assist with parts of this project's development and documentation. Their output was reviewed, but may contain errors; verify behavior on your hardware before relying on it.
