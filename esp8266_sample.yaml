@@ -1,0 +1,68 @@
+esphome:
+  name: kaeltebringer-extended
+  friendly_name: Kältebringer Extended
+
+esp8266:
+  board: esp_wroom_02
+
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [kaeltebringer]
+
+logger:
+  baud_rate: 0 # Keep debug logs off the protocol UART.
+
+status_led:
+  pin: GPIO5
+
+uart:
+  id: uart_bus
+  tx_pin: 15
+  rx_pin: 13
+  baud_rate: 9600
+  parity: EVEN
+
+climate:
+  - platform: kaeltebringer
+    id: ac
+    uart_id: uart_bus
+    name: "AC"
+    update_interval: 60s
+    # beep_enabled: false
+    # diagnostic_interval: 5min  # how often energy/compressor counters are polled
+    room_temperature:
+      name: "AC Room Temperature"
+    target_temperature:
+      name: "AC Target Temperature"
+    fan_speed:
+      name: "AC Fan Speed"
+    energy:
+      name: "AC Compressor Energy"
+    energy_available:
+      name: "AC Energy Reading Available"
+    compressor_ticks:
+      name: "AC Compressor Runtime"
+    compressor_state:
+      name: "AC Compressor State"
+    indoor_active:
+      name: "AC Indoor Unit Active"
+    mute:
+      name: "AC Mute"
+    on_timer_armed:
+      name: "AC On Timer Armed"
+    on_timer_minutes:
+      name: "AC On Timer Remaining"
+    off_timer_armed:
+      name: "AC Off Timer Armed"
+    off_timer_minutes:
+      name: "AC Off Timer Remaining"
+    eco:
+      name: "AC Eco"
+    health:
+      name: "AC Health"
+    display:
+      name: "AC Display"
+    heater_8c:
+      name: "AC 8°C Heater"
