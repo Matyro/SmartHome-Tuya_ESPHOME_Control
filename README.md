@@ -26,7 +26,7 @@ These are nested under the `climate: - platform: kaeltebringer` entry. Omit any 
 | `outlet_temperature` | Sensor (°C) | Payload `[0x19]` formula from the protocol notes. Its selected meaning may vary; validate against hardware before use. |
 | `energy` | Sensor (kWh) | Outdoor-unit/compressor cumulative energy; only updated when the diagnostic reply reports available counters. Not whole-home energy. |
 | `energy_available` | Binary sensor | Whether the most recent energy diagnostic contained counters. |
-| `compressor_state` | Text sensor | `cooling`, `heating`, `off`, or `unknown` from the documented compressor code. |
+| `compressor_state` | Text sensor | `cooling`, `heating`, or `off` for the documented codes; `running` for any other nonzero code, matching AC-hack's component. The running interpretation needs hardware verification. |
 | `compressor_ticks` | Sensor (min) | Powered-on counter converted at approximately two minutes per tick; compressor/outdoor-unit metric, not a wall-clock runtime. |
 | `indoor_active` | Binary sensor | Indoor-unit active flag. |
 | `mute` | Binary sensor | Mute/low-noise state. |
@@ -44,6 +44,7 @@ The energy diagnostic (`0x0A`) followed by the mostly unmapped status diagnostic
 - Timer write offsets, date/time synchronization (`0x0B`), display messages (`0x05`), sleep-mode labels, and louver fixed-position/range controls are not exposed yet.
 - Set requests carry the timer-armed bits from the last reported state but no timer values, since the write offsets are unknown.
 - Diagnostics and temperature fields need live hardware verification.
+- For an unrecognized nonzero compressor code, climate action is inferred from heat, cool, or dry mode. In auto mode the direction is unknown, so the action remains idle.
 
 ## Tests
 

@@ -138,7 +138,7 @@ class FrameParser {
 };
 
 enum class Mode : uint8_t { COOL, DRY, FAN, HEAT, AUTO };
-enum class Compressor : uint8_t { OFF, COOLING, HEATING, UNKNOWN };
+enum class Compressor : uint8_t { OFF, COOLING, HEATING, RUNNING };
 
 // Fan level 0 is automatic, 1-5 are the manual steps. State and set frames use different codes per level.
 constexpr size_t FAN_LEVEL_COUNT = 6;
@@ -230,7 +230,7 @@ inline bool decode_state(const uint8_t *payload, size_t length, State *state) {
     case 0x30: state->compressor = Compressor::COOLING; break;
     case 0x2C: state->compressor = Compressor::HEATING; break;
     case 0x00: state->compressor = Compressor::OFF; break;
-    default: state->compressor = Compressor::UNKNOWN; break;
+    default: state->compressor = Compressor::RUNNING; break;
   }
   return true;
 }
@@ -240,8 +240,19 @@ inline const char *compressor_name(Compressor compressor) {
     case Compressor::COOLING: return "cooling";
     case Compressor::HEATING: return "heating";
     case Compressor::OFF: return "off";
+    case Compressor::RUNNING: return "running";
     default: return "unknown";
   }
+}
+
+inline Compressor compressor_in_mode(const State &state) {
+  if (state.compressor != Compressor::RUNNING || !state.mode_known)
+    return state.compressor;
+  if (state.mode == Mode::HEAT)
+    return Compressor::HEATING;
+  if (state.mode == Mode::COOL || state.mode == Mode::DRY)
+    return Compressor::COOLING;
+  return Compressor::RUNNING;
 }
 
 // Fan labels shared by the climate entity and the fan speed text sensor.

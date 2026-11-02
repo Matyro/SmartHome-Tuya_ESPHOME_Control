@@ -215,12 +215,13 @@ void KaeltebringerClimate::handle_state_(const uint8_t *payload) {
   else
     this->swing_mode = climate::CLIMATE_SWING_OFF;
 
+  const auto compressor = protocol::compressor_in_mode(state);
   if (!state.power)
     this->action = climate::CLIMATE_ACTION_OFF;
-  else if (state.compressor == protocol::Compressor::COOLING)
+  else if (compressor == protocol::Compressor::COOLING)
     this->action = this->mode == climate::CLIMATE_MODE_DRY ? climate::CLIMATE_ACTION_DRYING
                                                            : climate::CLIMATE_ACTION_COOLING;
-  else if (state.compressor == protocol::Compressor::HEATING)
+  else if (compressor == protocol::Compressor::HEATING)
     this->action = climate::CLIMATE_ACTION_HEATING;
   else if (this->mode == climate::CLIMATE_MODE_FAN_ONLY)
     this->action = climate::CLIMATE_ACTION_FAN;

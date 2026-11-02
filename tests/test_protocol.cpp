@@ -171,9 +171,26 @@ static void test_decode_state_fields() {
   payload[0x22] = 0x2C;
   decode_state(payload.data(), payload.size(), &state);
   CHECK(state.compressor == Compressor::HEATING);
-  payload[0x22] = 0x44;
+  payload[0x22] = 0xCA;
   decode_state(payload.data(), payload.size(), &state);
-  CHECK(state.compressor == Compressor::UNKNOWN);
+  CHECK(state.compressor == Compressor::RUNNING);
+  CHECK(std::strcmp(compressor_name(state.compressor), "running") == 0);
+  CHECK(compressor_in_mode(state) == Compressor::COOLING);
+  payload[2] = 0x14;
+  decode_state(payload.data(), payload.size(), &state);
+  CHECK(compressor_in_mode(state) == Compressor::HEATING);
+  payload[2] = 0x13;
+  decode_state(payload.data(), payload.size(), &state);
+  CHECK(compressor_in_mode(state) == Compressor::COOLING);
+  payload[2] = 0x15;
+  decode_state(payload.data(), payload.size(), &state);
+  CHECK(compressor_in_mode(state) == Compressor::RUNNING);
+  payload[2] = 0x1F;
+  decode_state(payload.data(), payload.size(), &state);
+  CHECK(compressor_in_mode(state) == Compressor::RUNNING);
+  payload[0x22] = 0x00;
+  decode_state(payload.data(), payload.size(), &state);
+  CHECK(state.compressor == Compressor::OFF);
 
   payload[0] = 0x00;
   CHECK(!decode_state(payload.data(), payload.size(), &state));
