@@ -46,6 +46,8 @@ climate:
       name: "AC Compressor Runtime"
     compressor_state:
       name: "AC Compressor State"
+    compressor_state_raw:
+      name: "AC Compressor State Code"
     indoor_active:
       name: "AC Indoor Unit Active"
     mute:

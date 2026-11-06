@@ -133,6 +133,7 @@ static void test_decode_documented_state() {
   CHECK_NEAR(state.outlet_temperature, 38.0, 0.001);
   CHECK(state.indoor_active);
   CHECK(!state.on_timer_armed && !state.off_timer_armed);
+  CHECK(state.compressor_code == 0xCA);
   CHECK(std::strcmp(fan_name(state), "4") == 0);
 }
 
@@ -162,6 +163,7 @@ static void test_decode_state_fields() {
   CHECK(state.off_timer_minutes == 90);
   CHECK(state.on_timer_minutes == 120);
   CHECK(state.mute && state.compressor == Compressor::COOLING);
+  CHECK(state.compressor_code == 0x30);
   CHECK(std::strcmp(fan_name(state), "Mute") == 0);
 
   payload[7] = 17;  // not a 30 minute step
@@ -171,9 +173,11 @@ static void test_decode_state_fields() {
   payload[0x22] = 0x2C;
   decode_state(payload.data(), payload.size(), &state);
   CHECK(state.compressor == Compressor::HEATING);
+  CHECK(state.compressor_code == 0x2C);
   payload[0x22] = 0xCA;
   decode_state(payload.data(), payload.size(), &state);
   CHECK(state.compressor == Compressor::RUNNING);
+  CHECK(state.compressor_code == 0xCA);
   CHECK(std::strcmp(compressor_name(state.compressor), "running") == 0);
   CHECK(compressor_in_mode(state) == Compressor::COOLING);
   payload[2] = 0x14;
@@ -191,6 +195,7 @@ static void test_decode_state_fields() {
   payload[0x22] = 0x00;
   decode_state(payload.data(), payload.size(), &state);
   CHECK(state.compressor == Compressor::OFF);
+  CHECK(state.compressor_code == 0x00);
 
   payload[0] = 0x00;
   CHECK(!decode_state(payload.data(), payload.size(), &state));

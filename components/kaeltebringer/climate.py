@@ -90,6 +90,10 @@ BINARY_SENSORS = {
 
 TEXT_SENSORS = {
     "compressor_state": {},
+    "compressor_state_raw": {
+        "entity_category": ENTITY_CATEGORY_DIAGNOSTIC,
+        "disabled_by_default": True,
+    },
     "fan_speed": {},
 }
 

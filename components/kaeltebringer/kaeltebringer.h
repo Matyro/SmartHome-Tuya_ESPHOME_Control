@@ -38,9 +38,10 @@ constexpr size_t BINARY_SENSOR_TYPE_COUNT = 5;
 
 enum class TextSensorType : uint8_t {
   COMPRESSOR_STATE,
+  COMPRESSOR_STATE_RAW,
   FAN_SPEED,
 };
-constexpr size_t TEXT_SENSOR_TYPE_COUNT = 2;
+constexpr size_t TEXT_SENSOR_TYPE_COUNT = 3;
 
 enum class SwitchType : uint8_t {
   ECO,

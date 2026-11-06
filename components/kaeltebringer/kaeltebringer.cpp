@@ -4,6 +4,8 @@
 #include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
 
+#include <cstdio>
+
 namespace esphome {
 namespace kaeltebringer {
 
@@ -93,6 +95,8 @@ void KaeltebringerClimate::dump_config() {
   LOG_BINARY_SENSOR("  ", "Energy Available",
                     this->binary_sensors_[static_cast<size_t>(BinarySensorType::ENERGY_AVAILABLE)]);
   LOG_TEXT_SENSOR("  ", "Compressor State", this->text_sensors_[static_cast<size_t>(TextSensorType::COMPRESSOR_STATE)]);
+  LOG_TEXT_SENSOR("  ", "Compressor State Raw",
+                  this->text_sensors_[static_cast<size_t>(TextSensorType::COMPRESSOR_STATE_RAW)]);
   LOG_TEXT_SENSOR("  ", "Fan Speed", this->text_sensors_[static_cast<size_t>(TextSensorType::FAN_SPEED)]);
   LOG_SWITCH("  ", "Eco", this->switches_[static_cast<size_t>(SwitchType::ECO)]);
   LOG_SWITCH("  ", "Health", this->switches_[static_cast<size_t>(SwitchType::HEALTH)]);
@@ -191,7 +195,7 @@ void KaeltebringerClimate::handle_state_(const uint8_t *payload) {
     return;
   }
   if (state.compressor == protocol::Compressor::RUNNING)
-    ESP_LOGW(TAG, "Unknown compressor state code 0x%02X (treating as running)", payload[0x22]);
+    ESP_LOGW(TAG, "Unknown compressor state code 0x%02X (treating as running)", state.compressor_code);
   const uint8_t fan_code = (payload[3] >> 4) & 0x07;
   if (fan_code >= protocol::FAN_LEVEL_COUNT)
     ESP_LOGW(TAG, "Unknown fan speed code 0x%X", fan_code);
@@ -248,6 +252,9 @@ void KaeltebringerClimate::handle_state_(const uint8_t *payload) {
   this->publish_(BinarySensorType::ON_TIMER_ARMED, state.on_timer_armed);
   this->publish_(BinarySensorType::OFF_TIMER_ARMED, state.off_timer_armed);
   this->publish_(TextSensorType::COMPRESSOR_STATE, protocol::compressor_name(state.compressor));
+  char compressor_code[5];
+  std::snprintf(compressor_code, sizeof(compressor_code), "0x%02X", state.compressor_code);
+  this->publish_(TextSensorType::COMPRESSOR_STATE_RAW, compressor_code);
   this->publish_(TextSensorType::FAN_SPEED, fan_name);
   if (!this->pending_set_)
     this->publish_(SwitchType::ECO, state.eco);

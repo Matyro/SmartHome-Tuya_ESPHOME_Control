@@ -192,6 +192,7 @@ struct State {
   float outlet_temperature{0};
   bool indoor_active{false};
   Compressor compressor{Compressor::OFF};
+  uint8_t compressor_code{0};
   bool on_timer_armed{false};
   bool off_timer_armed{false};
   uint16_t on_timer_minutes{0};
@@ -226,7 +227,8 @@ inline bool decode_state(const uint8_t *payload, size_t length, State *state) {
   state->outlet_temperature = (static_cast<float>(payload[0x19]) * 4.0f - 200.0f) / 10.0f;
   state->indoor_active = payload[0x1D] != 0x00;
   state->mute = (payload[0x21] & 0x80) != 0;
-  switch (payload[0x22]) {
+  state->compressor_code = payload[0x22];
+  switch (state->compressor_code) {
     case 0x30: state->compressor = Compressor::COOLING; break;
     case 0x2C: state->compressor = Compressor::HEATING; break;
     case 0x00: state->compressor = Compressor::OFF; break;
