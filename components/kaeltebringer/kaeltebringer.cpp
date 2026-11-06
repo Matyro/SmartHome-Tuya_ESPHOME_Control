@@ -190,6 +190,15 @@ void KaeltebringerClimate::handle_state_(const uint8_t *payload) {
     ESP_LOGW(TAG, "Invalid state payload");
     return;
   }
+  if (state.compressor == protocol::Compressor::RUNNING)
+    ESP_LOGW(TAG, "Unknown compressor state code 0x%02X (treating as running)", payload[0x22]);
+  const uint8_t fan_code = (payload[3] >> 4) & 0x07;
+  if (fan_code >= protocol::FAN_LEVEL_COUNT)
+    ESP_LOGW(TAG, "Unknown fan speed code 0x%X", fan_code);
+  if (state.off_timer_armed && (payload[7] >= 60 || payload[7] % 30 != 0))
+    ESP_LOGW(TAG, "Unknown off timer value 0x%02X:0x%02X", payload[6], payload[7]);
+  if (state.on_timer_armed && (payload[9] >= 60 || payload[9] % 30 != 0))
+    ESP_LOGW(TAG, "Unknown on timer value 0x%02X:0x%02X", payload[8], payload[9]);
   this->state_valid_ = true;
   // Pending changes must not be overwritten by a state reported before they were sent.
   if (!this->pending_set_)
@@ -200,7 +209,7 @@ void KaeltebringerClimate::handle_state_(const uint8_t *payload) {
   else if (state.mode_known)
     this->mode = to_climate_mode(state.mode);
   else
-    ESP_LOGW(TAG, "Unknown operating mode 0x%X", payload[2] & 0x0F);
+    ESP_LOGW(TAG, "Unknown operating mode code 0x%X", payload[2] & 0x0F);
 
   const char *fan_name = protocol::fan_name(state);
   this->target_temperature = state.target_temperature;
